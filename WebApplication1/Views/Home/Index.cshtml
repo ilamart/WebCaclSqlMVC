@@ -1,0 +1,91 @@
+﻿@model List<WebApplication1.Models.History>
+@*@{
+        ViewData["Title"] = "Калькулятор";
+    }*@
+<h1>@ViewData["Title"] Калькулятор</h1>
+
+<style>
+    H4 {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        color: #333366;
+    }
+
+    H1 {
+        background: #faf0e6;
+        border: 2px dashed maroon;
+        color: #a0522d;
+        padding: 7px;
+    }
+
+    table {
+        width: 700px;
+        word-wrap: normal;
+        position: relative;
+        border: 1px solid black;
+        border-collapse: collapse;
+        cursor: pointer;
+    }
+
+        table tr:nth-child(2n) td {
+            background: #c3afca;
+        }
+
+        table tr:nth-child(2n+1) td {
+            background: #faf0e6;
+        }
+
+    th {
+        background: purple;
+        color: aliceblue;
+        font-family: 'Malgun Gothic';
+        font-size: 100%;
+    }
+
+    tbody td:hover {
+        font-weight: 800;
+        color: black;
+        border: 1px solid black;
+        text-align: left;
+    }
+
+    tbody tr:hover:not(:first-child) {
+        font-weight: 800;
+        color: black;
+        border: 1px solid black;
+        text-align: left;
+    }
+</style>
+
+
+<head>
+    <meta http-equiv=Content-Type content="text/html;charset=utf-8">
+</head>
+<form asp-controller="Home" asp-action="Index">
+    <p>
+        <input type="text" placeholder="Что ищем? "name="searchExpression">
+        <input type="submit" value="по выражениям" />
+
+    </p>
+    <p>
+        <input type="text" placeholder="Что ищем? "name="searchHost">
+        <input type="submit" value="по хосту" />
+    </p>
+</form>
+
+
+<form method="post" asp-action="Submit">
+    <p><br /></p>
+    <p><input required placeholder="Введите выражение: " name="Expression"></p>
+    <p><input type="submit" value="Рассчитать!"></p>
+    <p></p>
+    <p> История: </p>
+
+    <table>
+        <tr><th>Выражение</th><th>Результат</th><th>Адрес</th><th>Время обращения</th></tr>
+        @foreach (var logItem in Model)
+        {
+            @:<tr><td>@(logItem.Expression)</td><td> = @(logItem.Result)</td><td>@(logItem.Host)</td><td>@(logItem.CreatedDateTime)</td></tr>
+        }
+    </table>
+</form>
+
