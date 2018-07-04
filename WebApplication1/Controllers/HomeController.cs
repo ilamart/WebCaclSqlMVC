@@ -29,15 +29,20 @@ namespace WebApplication1.Controllers
 
         public IActionResult Index(string searchExpression, string searchHost)
         {
-            var movies = from m in calculationDbContext.Histories
+            var notes = from m in calculationDbContext.Histories
                          select m;
 
             if (!String.IsNullOrEmpty(searchExpression))
-                movies = movies.Where(s => s.Expression.Contains(searchExpression));
+                notes = notes.Where(s => s.Expression.Contains(searchExpression));
+
+            ViewBag.searchExpression = searchExpression;
+
             if (!String.IsNullOrEmpty(searchHost))
-                movies = movies.Where(s => s.Host.Contains(searchHost));
-            
-            return View(SortedByDate(movies.ToList()));
+                notes = notes.Where(s => s.Host.Contains(searchHost));
+
+            ViewBag.searchHost = searchHost;
+
+            return View(SortedByDate(notes.ToList()));
         }
 
         public IActionResult Error()
