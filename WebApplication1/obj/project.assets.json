@@ -12668,11 +12668,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\l.kukharenko\\source\\repos\\file\\WebApplication1\\WebApplication1.csproj",
+      "projectUniqueName": "C:\\Users\\l.kukharenko\\source\\WebCaclSqlMVC\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "C:\\Users\\l.kukharenko\\source\\repos\\file\\WebApplication1\\WebApplication1.csproj",
+      "projectPath": "C:\\Users\\l.kukharenko\\source\\WebCaclSqlMVC\\WebApplication1\\WebApplication1.csproj",
       "packagesPath": "C:\\Users\\l.kukharenko\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\l.kukharenko\\source\\repos\\file\\WebApplication1\\obj\\",
+      "outputPath": "C:\\Users\\l.kukharenko\\source\\WebCaclSqlMVC\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

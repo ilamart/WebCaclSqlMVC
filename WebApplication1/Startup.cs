@@ -29,6 +29,7 @@ namespace WebApplication1
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseSession();
+            app.UseStaticFiles();
 
             if (env.IsDevelopment())
             {
