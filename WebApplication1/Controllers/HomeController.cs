@@ -10,39 +10,46 @@ namespace WebApplication1.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly CalculationDbContext calculationDbContext;
+        private readonly CalculationDbContext _context;
 
         private static int CompareDateTime(History first, History second)
         {
             return second.CreatedDateTime.CompareTo(first.CreatedDateTime);
         }
 
-        public static List<History> SortedByDate(List<History> histories)
+        public HomeController(CalculationDbContext context)
         {
-            return histories.ToList().OrderByDescending(x => x.CreatedDateTime).ToList();
+            _context = context;
         }
 
-        public HomeController(CalculationDbContext logBase)
+        public List<History> SortedByDate(List<History> notes, PageData pageData)
         {
-            calculationDbContext = logBase;
+            pageData.TotalPages = notes.Count / pageData.NotesPerPage;
+            if (notes.Count % pageData.NotesPerPage > 0)
+            {
+                if (pageData.TotalPages != 1)
+                {
+                    pageData.TotalPages++;
+                }
+            }
+            notes.Sort((History h1, History h2) =>
+            h2.CreatedDateTime.CompareTo(h1.CreatedDateTime));
+            return notes.Skip((pageData.PageNumber - 1) * pageData.NotesPerPage).Take(pageData.NotesPerPage).ToList();
         }
 
-        public IActionResult Index(string searchExpression, string searchHost)
+        public List<History> DoFilter(List<History> notes, PageData page)
         {
-            var notes = from m in calculationDbContext.Histories
-                         select m;
+            if (!String.IsNullOrEmpty(page.PreviousSearchExpression))
+                notes = notes.Where(s => s.Expression.Contains(page.PreviousSearchExpression)).ToList();
+            if (!String.IsNullOrEmpty(page.PreviousSearchHost))
+                notes = notes.Where(s => s.Host.Contains(page.PreviousSearchHost)).ToList();
+            return notes;
+        }
 
-            if (!String.IsNullOrEmpty(searchExpression))
-                notes = notes.Where(s => s.Expression.Contains(searchExpression));
-
-            ViewBag.searchExpression = searchExpression;
-
-            if (!String.IsNullOrEmpty(searchHost))
-                notes = notes.Where(s => s.Host.Contains(searchHost));
-
-            ViewBag.searchHost = searchHost;
-
-            return View(SortedByDate(notes.ToList()));
+        public IActionResult Index(PageData page, int numberPage)
+        {
+            page.Histories = SortedByDate(DoFilter(_context.Histories.ToList(), page).ToList(), page);
+            return View(page);
         }
 
         public IActionResult Error()
@@ -50,16 +57,70 @@ namespace WebApplication1.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+
         [HttpPost]
-        public IActionResult Submit(History noteConnection)
+        public IActionResult Submit(PageData page, string action)
         {
-            var calculation = new StringCalc();
-            noteConnection.Result = calculation.DoCalculation(noteConnection.Expression).ToString();
-            noteConnection.Host = Request.Host.ToString();
-            noteConnection.CreatedDateTime = DateTime.Now;
-            calculationDbContext.Add(noteConnection);
-            calculationDbContext.SaveChanges();
-            return View("Index", SortedByDate(calculationDbContext.Histories.ToList()));
+            if (action == "Evaluate")
+            {
+                var calculation = new StringCalc();
+                var note = new History
+                {
+                    Expression = page.Expression
+                };
+                note.Result = calculation.DoCalculation(note.Expression).ToString();
+                note.Host = Request.Host.ToString();
+                note.CreatedDateTime = DateTime.Now;
+                _context.Histories.Add(note);
+                _context.SaveChanges();
+                page.PageNumber = 0;
+            }
+
+            var notes = _context.Histories.ToList();
+            if (action == "Search")
+            {
+                page.PreviousSearchExpression = page.NewSearchExpression;
+                page.PreviousSearchHost = page.NewSearchHost;
+                notes = SortedByDate(DoFilter(notes, page), page);
+                page.Histories = notes;
+                page.PageNumber = 0;
+                return View("Index", page);
+            }
+
+            if (action == "Previous")
+            {
+                if (page.PageNumber <= 0)
+                {
+                    page.PageNumber = 0;
+                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page); ;
+                    return View("Index", page);
+                }
+                else
+                {
+                    --page.PageNumber;
+                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page); ;
+                    return View("Index", page);
+                }
+            }
+
+            if (action == "Next")
+            {
+                if (page.PageNumber >= page.TotalPages)
+                {
+                    page.PageNumber = page.TotalPages;
+                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page);
+                    return View("Index", page);
+                }
+                else
+                {
+                    ++page.PageNumber;
+                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page);
+                    return View("Index", page);
+                }
+            }
+
+            page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page);
+            return View("Index", page);
         }
     }
 }

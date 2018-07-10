@@ -1,75 +1,124 @@
 H4 {
-        font-family: Verdana, Arial, Helvetica, sans-serif;
-        color: #333366;
-        text-align: center;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: #333366;
+    text-align: center;
+}
+
+H1 {
+    background: #faf0e6;
+    border: 2px dashed maroon;
+    color: #a0522d;
+    padding: 7px;
+}
+
+table tr:nth-child(2n) td {
+    background: #F5ECCE;
+    border: 1px solid;
+}
+
+table tr:nth-child(2n+1) td {
+    background: #D8F4A2;
+    border: 1px solid;
+}
+
+th {
+    background: white;
+    color: black;
+    font-family: 'Malgun Gothic';
+    font-size: 100%;
+    border: 1px solid;
+}
+
+#col1 {
+    width: 20%;
+}
+
+tbody td:hover {
+    font-weight: 800;
+    color: black;
+    text-align: left;
+}
+
+tbody tr:hover:not(:first-child) {
+    font-weight: 800;
+    color: black;
+    text-align: left;
+}
+
+body {
+    margin: 0;
+}
+
+#sidebar, #content {
+    position: absolute;
+}
+
+#sidebar, #content {
+    overflow: auto;
+    padding: 10px;
+}
+
+#header {
+    height: 80px;
+    background: #FEDFC0;
+    border-bottom: 2px solid #7B5427;
+}
+
+#sidebar {
+    width: 200px;
+    background: #ECF5E4;
+    border-right: 1px solid #231F20;
+    top: 82px;
+    bottom: 10px;
+}
+
+#content {
+    top: 82px;
+    left: 232px;
+    bottom: 10px;
+    right: 0;
+}
+
+.pager {
+    width: 100%;
+    margin: 0px;
+    display: inline-block;
+    padding: 0px;
+}
+
+    .pager ul {
+        list-style: none;
+        margin: 0px;
+        padding: 0px;
     }
 
-    H1 {
-        background: #faf0e6;
-        border: 2px dashed maroon;
-        color: #a0522d;
-        padding: 7px;
-    }
-
-        table tr:nth-child(2n) td {
-            background: #F5ECCE;
-            border: 1px solid;
+        .pager ul li {
+            float: left;
+            min-width: 30px;
+            text-align: center;
         }
-        table tr:nth-child(2n+1) td {
-            background: #D8F4A2;
-            border: 1px solid;
-        }
 
-    th {
-        background: white;
-        color: black;
-        font-family: 'Malgun Gothic';
-        font-size: 100%;
-        border: 1px solid;
-    }
+            .pager ul li span {
+                display: block;
+                margin: 0px 1px;
+                padding: 4px;
+                text-decoration: none;
+                border: 1px solid #ccc;
+            }
 
-    tbody td:hover {
-        font-weight: 800;
-        color: black;
-        text-align: left;
-    }
+            .pager ul li a {
+                display: block;
+                margin: 0px 1px;
+                padding: 4px;
+                text-decoration: none;
+                border: 1px solid #ccc;
+            }
 
-    tbody tr:hover:not(:first-child) {
-        font-weight: 800;
-        color: black;
-        text-align: left;
-    }
+.highlighted {
+    background-color: #ccc;
+    color: #000;
+}
 
-    body {
-        margin: 0;
-    }
-
-    #sidebar, #content {
-        position: absolute;
-    }
-
-    #sidebar, #content {
-        overflow: auto;
-        padding: 10px;
-    }
-
-    #header {
-        height: 80px; 
-        background: #FEDFC0;
-        border-bottom: 2px solid #7B5427;
-    }
-
-    #sidebar {
-        width: 200px;
-        background: #ECF5E4;
-        border-right: 1px solid #231F20;
-        top: 82px; 
-        bottom: 10px;
-    }
-
-    #content {
-        top: 82px; 
-        left: 232px; 
-        bottom: 10px;
-        right: 0;
-    }
+input.text {
+    width: 20px;
+}

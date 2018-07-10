@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using WebApplication1.Controllers;
 using WebApplication1.Models;
 
 namespace WebApplication1
@@ -23,7 +20,6 @@ namespace WebApplication1
             services.TryAddSingleton<CalculationDbContext>();
             services.AddMvc();
             services.AddRouting();
-            //services.AddDbContext<CalculationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -40,7 +36,6 @@ namespace WebApplication1
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
             
             app.UseMvc(routes =>
             {
