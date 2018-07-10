@@ -1,38 +1,66 @@
-﻿@model List<WebApplication1.Models.History>
+@using System.Text; 
+@model WebApplication1.Models.PageData
 
 <link href="~/Site.css" rel="stylesheet" />
 
 <h1 class="header" align="center">@ViewData["Title"] Калькулятор</h1>
 
-
 <meta http-equiv=Content-Type content="text/html;charset=utf-8">
-
 
 <div id="sidebar">
     <h4> Введите выражение для расчёта: </h4>
-    <form method="post" asp-action="Submit">
-        <p><input type="text" value="@Model.First().Expression" name="Expression"></p>
-        <p><input type="submit" value="Рассчитать!"></p>
-        <p></p>
-    </form>
-    <h4> Сортировать историю: </h4>
-    <form asp-controller="Home" asp-action="Index">
+     @using (Html.BeginForm("Submit", "Home", FormMethod.Post))
+    {
         <p>
-            <input type="text" value="@ViewBag.searchExpression" name="searchExpression">
-            <input type="submit" value="по выражениям" />
+            <textarea rows="1" asp-for="Expression"></textarea>
+            <button type="submit" name="action" value="Evaluate">Evaluate</button>
+        </p>
+        <p></p>
+        <h4> Сортировать историю: </h4>
+        <p>
+            <textarea rows="1" asp-for="NewSearchExpression"></textarea>
+        </p>
+        <p>
+            <textarea rows="1" asp-for="NewSearchHost"></textarea>
+            <button type="submit" name="action" value="Search">Search</button>
+        </p>
+        <p>
+            Page @(Model.PageNumber +1) of @(Model.TotalPages) pages
+        </p>
+        <p>
+            @{
+                var ans = new StringBuilder();
+                if (Model.AnswerFilter == null)
+                {
+                    ans.Append("Фильтры не применены");
+                }
+                else
+                {
+                    ans.Append(Model.AnswerFilter);
+                };
+            }
+            <label>@ans</label>
+        </p>
+        <input type="hidden" name="AnswerFilter" value="@Model.AnswerFilter" />
+        <input type="hidden" name="PreviousSearchExpression" value="@Model.PreviousSearchExpression" />
+        <input type="hidden" name="PreviousSearchHost" value="@Model.PreviousSearchHost" />
+        <input type="hidden" name="TotalPages" value="@Model.TotalPages" />
+        <p>
 
         </p>
-        <p>
-            <input type="text" value="@ViewBag.searchHost" name="searchHost">
-            <input type="submit" value="по хосту" />
-        </p>
-    </form>
+        <button type="submit" name="action" value="Previous" > Previous </button>
+
+        <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
+
+
+        <button type="submit" name="action" value="Next">Next</button>
+    }
 </div>
 
 <div id="content">
     <table>
         <tr><th>Выражение</th><th>Результат</th><th>Адрес</th><th>Время обращения</th></tr>
-        @foreach (var logItem in Model)
+        @foreach (var logItem in Model.Histories)
         {
             @:<tr><td>@(logItem.Expression)</td><td> = @(logItem.Result)</td><td id="col1">@(logItem.Host)</td><td id="col1">@(logItem.CreatedDateTime)</td></tr>
         }
