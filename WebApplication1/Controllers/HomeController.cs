@@ -1,5 +1,4 @@
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
@@ -11,21 +10,16 @@ namespace WebApplication1.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly CalculationDbContext calculationDbContext;
+        private readonly CalculationDbContext _context;
 
         private static int CompareDateTime(History first, History second)
         {
             return second.CreatedDateTime.CompareTo(first.CreatedDateTime);
         }
 
-        public static List<History> SortedByDate(List<History> histories)
+        public HomeController(CalculationDbContext context)
         {
-            return histories.ToList().OrderByDescending(x => x.CreatedDateTime).ToList();
-        }
-
-        public HomeController(CalculationDbContext logBase)
-        {
-            calculationDbContext = logBase;
+            _context = context;
         }
 
         public List<History> SortedByDate(List<History> notes, PageData pageData)
@@ -46,14 +40,14 @@ namespace WebApplication1.Controllers
                 notes = notes.Where(s => s.Host.Contains(page.PreviousSearchHost)).ToList();
             return notes;
         }
-        
+
         public IActionResult Index(PageData page, int numberPage)
         {
             page.Histories = SortedByDate(DoFilter(_context.Histories.ToList(), page).ToList(), page);
             GetAnswerFilter(page);
             return View(page);
         }
-        
+
         public void GetAnswerFilter (PageData page)
         {
             page.AnswerFilter = new System.Text.StringBuilder();
@@ -62,11 +56,13 @@ namespace WebApplication1.Controllers
             if (page.PreviousSearchHost != null)
                 page.AnswerFilter.AppendLine("Фильтрация по хосту (" + page.PreviousSearchHost + ") ");
         }
-        
+
+
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
 
         [HttpPost]
         public IActionResult Submit(PageData page, string action)
