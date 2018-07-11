@@ -24,24 +24,18 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        public List<History> SortedByDate(List<History> notes, PageData pageData)
-        {
-            pageData.TotalPages = notes.Count / pageData.NotesPerPage;
-            if (notes.Count % pageData.NotesPerPage > 0)
-            {
-                if (pageData.TotalPages != 1)
-                {
-                    pageData.TotalPages++;
-                }
-            }
-            notes.Sort((History h1, History h2) =>
-            h2.CreatedDateTime.CompareTo(h1.CreatedDateTime));
-            return notes.Skip((pageData.PageNumber - 1) * pageData.NotesPerPage).Take(pageData.NotesPerPage).ToList();
-        }
-
         public IActionResult Index(PageData page, int numberPage)
         {
-            page.Histories = SortedByDate(_context.Histories.ToList(), page);
+            IQueryable<History> result = _context.Histories;
+            page.TotalPages = result.Count() / page.NotesPerPage;
+            if (result.Count() % page.NotesPerPage > 0)
+            {
+                if (page.TotalPages != 1)
+                {
+                    page.TotalPages++;
+                }
+            }
+            page.Histories = result.OrderByDescending(s => s.CreatedDateTime).Skip((page.PageNumber) * page.NotesPerPage).Take(page.NotesPerPage).ToList();
             return View(page);
         }
 
@@ -54,6 +48,8 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public IActionResult Submit(PageData page, string action)
         {
+            
+
             if (action == "Evaluate")
             {
                 var note = new History
@@ -79,14 +75,14 @@ namespace WebApplication1.Controllers
             if (action == "Previous")
             {
                 --page.PageNumber;
-                if (page.PageNumber <= 0)
+                if (page.PageNumber == 0)
                     page.PageNumber = 0; 
             }
 
             if (action == "Next")
             {
                 ++page.PageNumber;
-                if (page.PageNumber >= page.TotalPages)
+                if (page.PageNumber == page.TotalPages)
                     page.PageNumber = page.TotalPages;
             }
 
@@ -95,7 +91,16 @@ namespace WebApplication1.Controllers
                 result = result.Where(s => s.Expression.Contains(page.PreviousSearchExpression));
             if (page.PreviousSearchHost != null && page.PreviousSearchHost != "")
                 result = result.Where(s => s.Host.Contains(page.PreviousSearchHost));
-            page.Histories = SortedByDate(result.ToList(),page);
+
+            page.TotalPages = result.Count() / page.NotesPerPage;
+            if (result.Count() % page.NotesPerPage > 0)
+            {
+                if (page.TotalPages != 1)
+                {
+                    page.TotalPages++;
+                }
+            }
+            page.Histories = result.OrderByDescending(s => s.CreatedDateTime).Skip((page.PageNumber) * page.NotesPerPage).Take(page.NotesPerPage).ToList();
             return View("Index", page);
         }
     }
