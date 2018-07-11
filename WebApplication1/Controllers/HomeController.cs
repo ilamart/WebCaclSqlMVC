@@ -5,6 +5,8 @@ using WebApplication1.Models;
 using AppCalculate;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 
 namespace WebApplication1.Controllers
 {
@@ -76,39 +78,24 @@ namespace WebApplication1.Controllers
 
             if (action == "Previous")
             {
+                --page.PageNumber;
                 if (page.PageNumber <= 0)
-                {
-                    page.PageNumber = 0;
-                }
-                else
-                {
-                    --page.PageNumber;
-                }
+                    page.PageNumber = 0; 
             }
 
             if (action == "Next")
             {
+                ++page.PageNumber;
                 if (page.PageNumber >= page.TotalPages)
-                {
                     page.PageNumber = page.TotalPages;
-                }
-                else
-                {
-                    ++page.PageNumber;
-                }
             }
-            
-            if ((String.IsNullOrEmpty(page.PreviousSearchExpression)) && (String.IsNullOrEmpty(page.PreviousSearchHost)))
-            {
-                page.Histories = SortedByDate(_context.Histories.ToList(), page);
-            }
-            else
-            {
-                if (!String.IsNullOrEmpty(page.PreviousSearchExpression))
-                    page.Histories = SortedByDate(_context.Histories.Where(s => s.Expression.Contains(page.PreviousSearchExpression)).ToList(), page);
-                if (!String.IsNullOrEmpty(page.PreviousSearchHost))
-                    page.Histories = SortedByDate(_context.Histories.Where(s => s.Host.Contains(page.PreviousSearchHost)).ToList(), page);
-            }
+
+            IQueryable<History> result = _context.Histories;
+            if (page.PreviousSearchExpression != null && page.PreviousSearchExpression != "")
+                result = result.Where(s => s.Expression.Contains(page.PreviousSearchExpression));
+            if (page.PreviousSearchHost != null && page.PreviousSearchHost != "")
+                result = result.Where(s => s.Host.Contains(page.PreviousSearchHost));
+            page.Histories = SortedByDate(result.ToList(),page);
             return View("Index", page);
         }
     }
