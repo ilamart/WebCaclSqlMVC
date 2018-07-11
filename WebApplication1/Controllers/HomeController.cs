@@ -37,18 +37,9 @@ namespace WebApplication1.Controllers
             return notes.Skip((pageData.PageNumber - 1) * pageData.NotesPerPage).Take(pageData.NotesPerPage).ToList();
         }
 
-        public List<History> DoFilter(List<History> notes, PageData page)
-        {
-            if (!String.IsNullOrEmpty(page.PreviousSearchExpression))
-                notes = notes.Where(s => s.Expression.Contains(page.PreviousSearchExpression)).ToList();
-            if (!String.IsNullOrEmpty(page.PreviousSearchHost))
-                notes = notes.Where(s => s.Host.Contains(page.PreviousSearchHost)).ToList();
-            return notes;
-        }
-
         public IActionResult Index(PageData page, int numberPage)
         {
-            page.Histories = SortedByDate(DoFilter(_context.Histories.ToList(), page).ToList(), page);
+            page.Histories = SortedByDate(_context.Histories.ToList(), page);
             return View(page);
         }
 
@@ -63,11 +54,11 @@ namespace WebApplication1.Controllers
         {
             if (action == "Evaluate")
             {
-                var calculation = new StringCalc();
                 var note = new History
                 {
                     Expression = page.Expression
                 };
+                var calculation = new StringCalc();
                 note.Result = calculation.DoCalculation(note.Expression).ToString();
                 note.Host = Request.Host.ToString();
                 note.CreatedDateTime = DateTime.Now;
@@ -76,15 +67,11 @@ namespace WebApplication1.Controllers
                 page.PageNumber = 0;
             }
 
-            var notes = _context.Histories.ToList();
             if (action == "Search")
             {
                 page.PreviousSearchExpression = page.NewSearchExpression;
                 page.PreviousSearchHost = page.NewSearchHost;
-                notes = SortedByDate(DoFilter(notes, page), page);
-                page.Histories = notes;
                 page.PageNumber = 0;
-                return View("Index", page);
             }
 
             if (action == "Previous")
@@ -92,14 +79,10 @@ namespace WebApplication1.Controllers
                 if (page.PageNumber <= 0)
                 {
                     page.PageNumber = 0;
-                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page); ;
-                    return View("Index", page);
                 }
                 else
                 {
                     --page.PageNumber;
-                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page); ;
-                    return View("Index", page);
                 }
             }
 
@@ -108,18 +91,24 @@ namespace WebApplication1.Controllers
                 if (page.PageNumber >= page.TotalPages)
                 {
                     page.PageNumber = page.TotalPages;
-                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page);
-                    return View("Index", page);
                 }
                 else
                 {
                     ++page.PageNumber;
-                    page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page);
-                    return View("Index", page);
                 }
             }
-
-            page.Histories = SortedByDate(DoFilter(notes, page).ToList(), page);
+            
+            if ((String.IsNullOrEmpty(page.PreviousSearchExpression)) && (String.IsNullOrEmpty(page.PreviousSearchHost)))
+            {
+                page.Histories = SortedByDate(_context.Histories.ToList(), page);
+            }
+            else
+            {
+                if (!String.IsNullOrEmpty(page.PreviousSearchExpression))
+                    page.Histories = SortedByDate(_context.Histories.Where(s => s.Expression.Contains(page.PreviousSearchExpression)).ToList(), page);
+                if (!String.IsNullOrEmpty(page.PreviousSearchHost))
+                    page.Histories = SortedByDate(_context.Histories.Where(s => s.Host.Contains(page.PreviousSearchHost)).ToList(), page);
+            }
             return View("Index", page);
         }
     }
